@@ -1,3 +1,5 @@
+import { models } from "../models/queries.js";
+
 const home = (req, res) => {
     res.render('home', {
         title: 'Home',
@@ -48,5 +50,9 @@ const admin = async(req, res) => {
     });
 };
 
+const register = async (req, res) => {
+
+}
+
 export const controller = {
-    home, about, contactForm, notFound, loginForm, registerForm, updateForm, admin };
+    home, about, contactForm, notFound, loginForm, registerForm, updateForm, admin, register };

@@ -19,4 +19,6 @@ router.get('/admin', controller.admin)
 
 router.get('/*', controller.notFound)
 
+router.post('/register', controller.register)
+
 export default router
