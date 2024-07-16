@@ -17,8 +17,12 @@ router.get('/update', controller.updateForm)
 
 router.get('/admin', controller.admin)
 
-router.get('/*', controller.notFound)
-
 router.post('/register', controller.register)
+
+
+
+
+
+router.get('/*', controller.notFound)
 
 export default router

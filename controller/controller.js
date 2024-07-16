@@ -51,7 +51,13 @@ const admin = async(req, res) => {
 };
 
 const register = async (req, res) => {
+    const {name, email, eperience, specialty, password, image, confirm_password } = req.body;
 
+    try {
+
+    } catch (error){
+        res.status(500).send(error.message);
+    }
 }
 
 export const controller = {
