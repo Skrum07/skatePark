@@ -1,10 +1,10 @@
 import { pool } from "../config/db.js";
 
-const register = async ({name, email, experience, specialty, password, image}) => {
+const register = async ({name, email, experience, especialty, password, image}) => {
     try {
         const sql = {
             text: "INSERT INTO users (name, mail, experience, specialty, password, image) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-            values: [name, email, experience, specialty, password, image]
+            values: [name, email, experience, especialty, password, image]
         }
         const response = await pool.query(sql);
         if (response.rowCount > 0) {
@@ -36,5 +36,6 @@ const findOneByEmail = async(email) => {
 
 export const models = {
     register,
+    findOneByEmail
     
 }
