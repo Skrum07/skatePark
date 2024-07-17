@@ -19,6 +19,10 @@ router.get('/admin', controller.admin)
 
 router.post('/register', controller.register)
 
+router.post('/login', controller.login);
+
+router.post('/update', controller.update);
+
 
 
 

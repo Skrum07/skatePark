@@ -3,9 +3,10 @@ import { pool } from "../config/db.js";
 const register = async ({name, email, experience, especialty, password, image}) => {
     try {
         const sql = {
-            text: "INSERT INTO users (name, mail, experience, specialty, password, image) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+            text: "INSERT INTO users (name, email, experience, especialty, password, image) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
             values: [name, email, experience, especialty, password, image]
-        }
+        };
+
         const response = await pool.query(sql);
         if (response.rowCount > 0) {
             return response.rows[0];
@@ -34,8 +35,26 @@ const findOneByEmail = async(email) => {
                     }
 };
 
+const getUsers = async () => {
+    try {
+        const sql = {
+            text: "SELECT * FROM skaters",
+    };
+    const response = await pool.query(sql);
+    if (response.rowCount > 0) {
+        return response.rows;
+        } else {
+            return null;
+            }
+    } catch (error) {
+         console.log("Error code: ", error.code, "Error message: ", error.message);
+        }
+};
+
+
 export const models = {
     register,
-    findOneByEmail
+    findOneByEmail,
+    getUsers
     
 }

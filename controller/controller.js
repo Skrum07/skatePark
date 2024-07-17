@@ -3,10 +3,12 @@ import { check, validationResult } from "express-validator";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"; 
+import 'dotenv/config'
 
-const home = (req, res) => {
+const home = async(req, res) => {
     res.render('home', {
         title: 'Home',
+        users: await models.getUsers(),
     });
 };
 
@@ -35,7 +37,7 @@ const loginForm = (req, res) => {
 };
 
 const registerForm = (req, res) => {
-    res.redere("register", {
+    res.render('register', {
         title: "Register Page",
     });
 };
@@ -50,12 +52,12 @@ const updateForm = async(req, res) => {
 const admin = async(req, res) => {
     res.render("admin", {
         title: "Admin Page",
-        // users: await models.getUsers(),
+        users: await models.getUsers(),
     });
 };
 
 const register = async (req, res) => {
-    const {name, email, eperience, especialty, password, confirm_password } = req.body;
+    const {name, email, experience, especialty, password, confirm_password } = req.body;
 
     try {
         await check('name')
@@ -87,9 +89,6 @@ const register = async (req, res) => {
             .equals(password)
             .withMessage('Las contraseñas no coinciden')
             .run(req);  
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
 
        //Guardar errores
 
@@ -122,22 +121,79 @@ const register = async (req, res) => {
             old: req.body,
         });
        }
-//encriptacion de contraseña
+        //encriptacion de contraseña
 
-const hashedPassword = await bcrypt.hash(password, 10);
-
-
-//guardar el usuario
-
-const response = await models.register({
-    name, email, experience, especialty, password: hashedPassword, image: imageUrl,
-})
+        const hashedPassword = await bcrypt.hash(password, 10);
 
 
+        //guardar el usuario
 
-};    
+        const response = await models.register({
+            name, email, experience, especialty, password: hashedPassword, image: imageUrl,
+        });
+
+        res.status(201).redirect('/login');
+        } catch (error) {
+            res.status(500).send(error.message);
+        }
+}; 
+ 
+    const login = async (req, res) => {
+        const { email, password } = req.body;
+        try {
+        await check("email")
+            .notEmpty()
+            .withMessage("El email es obligatorio")
+            .run(req);
+        await check("password")
+            .isLength({ min: 6 })
+            .withMessage("La contraseña debe ser de al menos 6 caracteres")
+            .run(req);
+    
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.render("login", {
+            title: "Login Page",
+            errors: errors.array(),
+            old: req.body,
+            });
+        }
+
+        const user = await models.findOneByEmail(email);
+        if (!user) {
+          return res.render("login", {
+            title: "Login Page",
+            errors: [{ msg: "El usuario no existe" }],
+            old: req.body,
+          });
+        }
+
+        const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.render("login", {
+        title: "Login Page",
+        errors: [{ msg: "La contraseña es incorrecta" }],
+        old: req.body,
+      });
+    }
+
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET_KEY, {
+        expiresIn: "1m",
+      });
+      res.cookie("token", token, {
+        httpOnly: true,
+        maxAge: 40000,
+      });
+      res.status(200).render("update",{
+        title: "Update Page",
+        user
+      });
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  };
 
      
 
 export const controller = {
-    home, about, contactForm, notFound, loginForm, registerForm, updateForm, admin, register };
+    home, about, contactForm, notFound, loginForm, registerForm, updateForm, admin, register, login };
